@@ -1,0 +1,24 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName =  'PROJECTDIRECTORY.MAINCLASS'
+repositories {
+    jcenter()
+}
+jar{
+	baseName = 'MAINCLASS'
+	version = '0.1.1'
+	manifest{
+		attributes 'Main-Class': 'MAINCLASS'
+	}
+}
+			  
+dependencies {
+}
+
+/*
+To run
+gradle jar
+or
+gradle  build
+*/

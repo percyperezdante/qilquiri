@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# This script generates a minimal template for java using gradle.
+
+if [ $# == 0 ]
+then
+	echo -e "\n HELP:"
+	echo -e "\n  ./javagradle.gen PROJECT_NAME"
+	exit 1;
+fi
+
+PROJECTDIR=$1
+PROJECTNAME=${PROJECTDIR}
+TEMPLATESRC=~/.config/javatemplate
+#TEMPLATESRC=/data/dev/practice/template
+
+# The ${PROJECTNAME,,}  the double ,, is to convert the name in lowercase
+echo " --> creating template, project directory = "$PROJECTDIR", main class = "${PROJECTNAME,,}
+mkdir $PROJECTDIR $PROJECTDIR/src $PROJECTDIR/src/main $PROJECTDIR/src/main/java $PROJECTDIR/src/main/java/${PROJECTNAME,,}
+
+echo " --> Generating build.gradle file"
+cp $TEMPLATESRC/build.gradle $PROJECTDIR
+sed -i "s/PROJECTDIRECTORY/${PROJECTDIR,,}/g" $PROJECTDIR/build.gradle
+sed -i "s/MAINCLASS/${PROJECTNAME}/g" $PROJECTDIR/build.gradle
+
+echo " --> Copying test code"
+cp $TEMPLATESRC/src/main/java/MAINCLASS.java $PROJECTDIR/src/main/java/${PROJECTNAME,,}/$PROJECTNAME.java
+sed -i "s/MAINCLASS/${PROJECTNAME}/g" $PROJECTDIR/src/main/java/${PROJECTNAME,,}/$PROJECTNAME.java
+
+# Testing 
+cd $PROJECTDIR
+buildtest=`gradle clean build | grep SUCCESS `
+echo $buildtest
+
+# The "##* " expands the second field of the variable: variable expansion
+# TODO: need to use variable expansion echo ${buildtest##*}
+# if [ ${buildtest##* } = "SUCCESSFUL" ]
+if [ `echo $buildtest | awk '{ print $2}' ` = "SUCCESSFUL" ] 
+then
+	echo " --->  clean, build,"$buildtest
+	echo " --->  running build/libs/$PROJECTDIR-0.1.1.jar"
+	java -jar build/libs/$PROJECTDIR-0.1.1.jar 
+else
+		echo " ERROR during generationi, revisit the template"
+fi
+
+
