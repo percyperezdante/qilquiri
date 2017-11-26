@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: 'groovy'
 
 mainClassName =  'PROJECTDIRECTORY.MAINCLASS'
 repositories {
@@ -14,11 +15,22 @@ jar{
 }
 			  
 dependencies {
+	compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.9' 
+	testCompile 'org.spockframework:spock-core:1.1-groovy-2.4-rc-4' 
+	// This is commented as I am using the gradle report by default
+	//testCompile group: 'com.athaydes', name: 'spock-reports', version: '1.3.2'
 }
 
+task report(type:Exec){
+	commandLine "sh ","DisplayTestReport.spock"    
+}
 /*
-To run
+Ways to run
 gradle jar
-or
 gradle  build
+gradle clean build
+gradle clean test
+gradle clean test 
+gradle --continue clean test report
+
 */

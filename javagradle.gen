@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # This script generates a minimal template for java using gradle.
+# v1.0.0  This includes spock testing framework
 
 if [ $# == 0 ]
 then
@@ -18,6 +19,8 @@ TEMPLATESRC=~/.config/javatemplate
 echo " --> creating template, project directory = "$PROJECTDIR", main class = "${PROJECTNAME,,}
 mkdir $PROJECTDIR $PROJECTDIR/src $PROJECTDIR/src/main $PROJECTDIR/src/main/java $PROJECTDIR/src/main/java/${PROJECTNAME,,}
 
+mkdir $PROJECTDIR/src/test $PROJECTDIR/src/test/groovy $PROJECTDIR/src/test/java
+
 echo " --> Generating build.gradle file"
 cp $TEMPLATESRC/build.gradle $PROJECTDIR
 sed -i "s/PROJECTDIRECTORY/${PROJECTDIR,,}/g" $PROJECTDIR/build.gradle
@@ -27,11 +30,25 @@ echo " --> Copying test code"
 cp $TEMPLATESRC/src/main/java/MAINCLASS.java $PROJECTDIR/src/main/java/${PROJECTNAME,,}/$PROJECTNAME.java
 sed -i "s/MAINCLASS/${PROJECTNAME}/g" $PROJECTDIR/src/main/java/${PROJECTNAME,,}/$PROJECTNAME.java
 
-# Testing 
+echo " --> Copying Example Spock Test "
+cp $TEMPLATESRC/ExampleTest.groovy $PROJECTDIR/src/test/groovy/
+
+echo " --> Copying Spock reporst from Gradle"
+cp $TEMPLATESRC/DisplayTestReport.spock $PROJECTDIR
+
+# ------------------------------
+# Compiling
+# ------------------------------
 cd $PROJECTDIR
 buildtest=`gradle clean build | grep SUCCESS `
-echo $buildtest
+echo "------------------------------------------"
+echo "       COMPILING EXAMPLE JAVA    "
+echo "------------------------------------------"
+echo " --> "$buildtest
 
+echo "------------------------------------------"
+echo "       RUNNING JAR FILE    "
+echo "------------------------------------------"
 # The "##* " expands the second field of the variable: variable expansion
 # TODO: need to use variable expansion echo ${buildtest##*}
 # if [ ${buildtest##* } = "SUCCESSFUL" ]
@@ -44,4 +61,22 @@ else
 		echo " ERROR during generationi, revisit the template"
 fi
 
+# ------------------------------
+#  Spock
+# ------------------------------
+echo "------------------------------------------"
+echo "       SPOCK TESTS    "
+echo "------------------------------------------"
+runSpockTests=`gradle --continue clean test`
+echo " -->"$runSpockTests
 
+#-------------------------------
+#  Displaying report of Spock tests from Gradle
+#-------------------------------
+echo "------------------------------------------"
+echo "       DISPLAYING REPORT SPOCK TESTS    "
+echo "------------------------------------------"
+chmod 755 DisplayTestReport.spock
+sh DisplayTestReport.spock
+
+echo " --> Finished"
