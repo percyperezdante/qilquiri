@@ -22,7 +22,7 @@ dependencies {
 }
 
 task report(type:Exec){
-	commandLine "sh ","DisplayTestReport.spock"    
+	commandLine "./DisplayTestReport.spock"    
 }
 /*
 Ways to run
